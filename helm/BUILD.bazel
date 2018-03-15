@@ -1,0 +1,41 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files(glob(["*.bzl"]) + ["s3-push.sh.tpl"])
+
+config_setting(
+    name = "linux_amd64",
+    values = {
+        "cpu": "k8",
+    }
+)
+
+config_setting(
+    name = "darwin_amd64",
+    values = {
+        "cpu": "darwin",
+    }
+)
+
+genrule(
+    name = "helm_runtime",
+    output_to_bindir = 1,
+    srcs = select({
+        "//helm:linux_amd64": ["@helm_runtime_linux_amd64//:linux-amd64/helm"],
+        "//helm:darwin_amd64": ["@helm_runtime_darwin_amd64//:darwin-amd64/helm"],
+    }),
+    outs = ["bin/helm"],
+    cmd = "cp $(<) $(@)",
+    executable = True,
+)
+
+genrule(
+    name = "helm_s3_runtime",
+    output_to_bindir = 1,
+    srcs = select({
+        "//helm:linux_amd64": ["@helm_s3_runtime_linux_amd64//:bin/helms3"],
+        "//helm:darwin_amd64": ["@helm_s3_runtime_darwin_amd64//:bin/helms3"],
+    }),
+    outs = ["bin/helms3"],
+    cmd = "cp $(<) $(@)",
+    executable = True,
+)
