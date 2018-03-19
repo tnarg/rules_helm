@@ -2,7 +2,7 @@
 
 export AWS_REGION=%{AWS_REGION}
 export HELM_HOME=`mktemp -d`
-helm/bin/helm init --client-only > /dev/null
+%{HELM} init --client-only > /dev/null
 
 export HELM_PLUGIN=`mktemp -d`
 HELM_S3=${HELM_PLUGIN}/helm-s3
@@ -24,9 +24,9 @@ hooks:
   update: "cd \$HELM_PLUGIN_DIR; make install"
 EOF
 
-cp helm/bin/helms3 ${HELM_S3}/bin/helms3
+cp %{HELMS3} ${HELM_S3}/bin/helms3
 
-helm/bin/helm repo add dest %{REPO} > /dev/null
-helm/bin/helm s3 push %{CHART} dest $@
+%{HELM} repo add dest %{REPO} > /dev/null
+%{HELM} s3 push %{CHART} dest $@
 rm -r ${HELM_PLUGIN}
 rm -r ${HELM_HOME}

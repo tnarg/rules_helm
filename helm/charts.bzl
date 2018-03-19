@@ -47,6 +47,8 @@ def _helm_s3_push_impl(ctx):
             "%{CHART}": ctx.file.chart.short_path,
             "%{REPO}": ctx.attr.repo,
             "%{AWS_REGION}": ctx.attr.aws_region,
+            "%{HELM}": ctx.executable.helmbin.short_path,
+            "%{HELMS3}": ctx.executable.helms3bin.short_path,
         },
         executable = True,
     )
