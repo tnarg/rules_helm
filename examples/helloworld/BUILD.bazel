@@ -1,10 +1,17 @@
-load("@com_github_tnarg_rules_helm//helm:charts.bzl", "helm_package", "helm_s3_push")
+load("@com_github_tnarg_rules_helm//helm:charts.bzl", "helm_package", "helm_push", "helm_s3_push")
 
 helm_package(
     name = "chart",
     chartname = "helloworld",
     version = "0.1.1-alpha+gitsha1",
     srcs = glob(["**/*"]),
+)
+
+# chartmuseum
+helm_push(
+    name = "push",
+    chart = ":chart",
+    repo = "http://localhost:8080/",
 )
 
 helm_s3_push(

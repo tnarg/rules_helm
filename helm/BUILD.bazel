@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-exports_files(glob(["*.bzl"]) + ["s3-push.sh.tpl"])
+exports_files(glob(["*.bzl"]) + ["s3-push.sh.tpl", "push.sh.tpl"])
 
 config_setting(
     name = "linux_amd64",
@@ -36,6 +36,18 @@ genrule(
         "//helm:darwin_amd64": ["@helm_s3_runtime_darwin_amd64//:bin/helms3"],
     }),
     outs = ["bin/helms3"],
+    cmd = "cp $(<) $(@)",
+    executable = True,
+)
+
+genrule(
+    name = "helm_push_runtime",
+    output_to_bindir = 1,
+    srcs = select({
+        "//helm:linux_amd64": ["@helm_push_runtime_linux_amd64//:bin/helmpush"],
+        "//helm:darwin_amd64": ["@helm_push_runtime_darwin_amd64//:bin/helmpush"],
+    }),
+    outs = ["bin/helmpush"],
     cmd = "cp $(<) $(@)",
     executable = True,
 )

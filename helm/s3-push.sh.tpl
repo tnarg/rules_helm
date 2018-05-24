@@ -9,7 +9,7 @@ HELM_S3=${HELM_PLUGIN}/helm-s3
 mkdir -p ${HELM_S3}/bin
 cat <<EOF > ${HELM_S3}/plugin.yaml
 name: "s3"
-version: "0.6.0"
+version: "0.0.1"
 usage: "The plugin allows to use s3 protocol to upload, fetch charts and to work with repositories."
 description: |-
   Provides AWS S3 protocol support.

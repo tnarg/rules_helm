@@ -29,7 +29,25 @@ _helm_s3_runtimes = {
     ]
 }
 
-
+_helm_push_runtimes = {
+    "0.4.0": [
+        {
+            "os": "linux",
+            "arch": "amd64",
+            "sha256": "e0102fc8411c00b9008457a75cd4830f2e23a0415c6fa29b78b6c551d4febc07",
+        },
+        {
+            "os": "darwin",
+            "arch": "amd64",
+            "sha256": "bc581049e27b5aca6929109b0404f5e793274cfae0573d0f3531d0ffbd717f6e",
+        },
+        {
+            "os": "windows",
+            "arch": "amd64",
+            "sha256": "0aa1e7ae2aca375cbd13d44c01c899408d557345d814ac876a4065a3d0a5b9ff",
+        }
+    ]
+}
 
 def helm_tools():
     for helm_version in _helm_runtimes:
@@ -45,5 +63,13 @@ def helm_tools():
             native.new_http_archive(
                 name = "helm_s3_runtime_%s_%s" % (platform["os"], platform["arch"]),
                 build_file_content = """exports_files(["bin/helms3"], visibility = ["//visibility:public"])""",
-                url = "https://github.com/hypnoglow/helm-s3/releases/download/v0.6.0/helm-s3_%s_%s_%s.tar.gz" % (helm_s3_version, platform["os"], platform["arch"]),
+                url = "https://github.com/hypnoglow/helm-s3/releases/download/v%s/helm-s3_%s_%s_%s.tar.gz" % (helm_s3_version, helm_s3_version, platform["os"], platform["arch"]),
+            )
+
+    for helm_push_version in _helm_push_runtimes:
+        for platform in _helm_push_runtimes[helm_push_version]:
+            native.new_http_archive(
+                name = "helm_push_runtime_%s_%s" % (platform["os"], platform["arch"]),
+                build_file_content = """exports_files(["bin/helmpush"], visibility = ["//visibility:public"])""",
+                url = "https://github.com/chartmuseum/helm-push/releases/download/v%s/helm-push_%s_%s_%s.tar.gz" % (helm_push_version, helm_push_version, platform["os"], platform["arch"]),
             )

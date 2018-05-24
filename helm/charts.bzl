@@ -98,3 +98,59 @@ helm_s3_push = rule(
     implementation = _helm_s3_push_impl,
     executable = True,
 )
+
+def _helm_push_impl(ctx):
+    ctx.template_action(
+        template = ctx.file._push_tpl,
+        output = ctx.outputs.push,
+        substitutions = {
+            "%{CHART}": ctx.file.chart.short_path,
+            "%{REPO}": ctx.attr.repo,
+            "%{HELM}": ctx.executable.helmbin.short_path,
+            "%{HELMPUSH}": ctx.executable.helmpushbin.short_path,
+        },
+        executable = True,
+    )
+
+    return DefaultInfo(
+        executable = ctx.outputs.push,
+        runfiles = ctx.runfiles(files = [
+            ctx.executable.helmbin,
+            ctx.executable.helmpushbin,
+            ctx.file.chart,
+        ]),
+    )
+
+helm_push = rule(
+    attrs = {
+        "_push_tpl": attr.label(
+            default = Label("//helm:push.sh.tpl"),
+            single_file = True,
+            allow_files = True,
+        ),
+        "helmbin": attr.label(
+            default = Label("//helm:helm_runtime"),
+            executable = True,
+            single_file = True,
+            allow_files = True,
+            cfg = "host",
+        ),
+        "helmpushbin": attr.label(
+            default = Label("//helm:helm_push_runtime"),
+            executable = True,
+            single_file = True,
+            allow_files = True,
+            cfg = "host",
+        ),
+        "chart": attr.label(
+            mandatory = True,
+            single_file = True,
+        ),
+        "repo": attr.string(
+            mandatory = True,
+        ),
+    },
+    outputs = {"push": "push.sh"},
+    implementation = _helm_push_impl,
+    executable = True,
+)
