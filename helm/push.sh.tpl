@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 export HELM_HOME=`mktemp -d`
 %{HELM} init --client-only > /dev/null
 
