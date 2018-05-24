@@ -16,14 +16,13 @@ def _helm_package_impl(ctx):
         inputs = ctx.files.srcs + ctx.files.helmbin + [ctx.version_file],
         outputs = [ctx.outputs.package],
         command = """
-set -ex
+set -e
 export _CHART_VERSION=$(env -i $(cat %s | awk '{printf "%%s=%%s ", $1, $2}') bash -c 'echo %s')
 TMP=`mktemp -d`
 CHART=$TMP/%s
 cp -r %s $CHART
 %s $CHART
 mv %s/%s-$_CHART_VERSION.tgz %s
-ls -la $CHART
 rm -r $TMP
 """ % (ctx.version_file.path, ctx.attr.version, ctx.attr.chartname, ctx.label.package, cmd, ctx.outputs.package.dirname, ctx.attr.chartname, ctx.outputs.package.path),
     )
