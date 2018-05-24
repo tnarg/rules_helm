@@ -11,7 +11,8 @@ helm_package(
 helm_push(
     name = "push",
     chart = ":chart",
-    repo = "http://localhost:8080/",
+    repo = "http://localhost:8080/foo/",
+    contextpath = "/foo/",
 )
 
 helm_s3_push(

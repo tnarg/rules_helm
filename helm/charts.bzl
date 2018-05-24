@@ -119,6 +119,7 @@ def _helm_push_impl(ctx):
         substitutions = {
             "%{CHART}": ctx.file.chart.short_path,
             "%{REPO}": ctx.attr.repo,
+            "%{HELM_REPO_CONTEXT_PATH}": ctx.attr.contextpath,
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{HELMPUSH}": ctx.executable.helmpushbin.short_path,
         },
@@ -161,6 +162,9 @@ helm_push = rule(
         ),
         "repo": attr.string(
             mandatory = True,
+        ),
+        "contextpath": attr.string(
+            mandatory = False,
         ),
     },
     outputs = {"push": "push.sh"},

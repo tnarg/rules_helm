@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -ex
 export HELM_HOME=`mktemp -d`
 %{HELM} init --client-only > /dev/null
 
@@ -24,6 +25,6 @@ EOF
 cp %{HELMPUSH} ${HELM_PUSH}/bin/helmpush
 
 %{HELM} repo add dest %{REPO} > /dev/null
-%{HELM} push %{CHART} dest $@
+%{HELM} push --context-path=%{HELM_REPO_CONTEXT_PATH} %{CHART} dest $@
 rm -r ${HELM_PLUGIN}
 rm -r ${HELM_HOME}
