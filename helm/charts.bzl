@@ -1,17 +1,31 @@
 
 def _helm_package_impl(ctx):
+    #print(ctx.var)
+    #interpolated_version = ctx.attr.version.format(ctx.var)
+    #print(interpolated_version)
+
     cmd = " ".join([
         ctx.executable.helmbin.path,
         "package",
         "--debug",
         "--save=false",
-        "--version=%s" % ctx.attr.version,
+        "--version=$_CHART_VERSION",
         "--destination=%s" % ctx.outputs.package.dirname,
     ])
     ctx.action(
-        inputs = ctx.files.srcs + ctx.files.helmbin,
+        inputs = ctx.files.srcs + ctx.files.helmbin + [ctx.version_file],
         outputs = [ctx.outputs.package],
-        command = "/bin/bash -c 'set -e; TMP=`mktemp -d`; CHART=$TMP/%s; cp -r %s $CHART; %s $CHART; rm -r $TMP'" % (ctx.attr.chartname, ctx.label.package, cmd),
+        command = """
+set -ex
+export _CHART_VERSION=$(env -i $(cat %s | awk '{printf "%%s=%%s ", $1, $2}') bash -c 'echo %s')
+TMP=`mktemp -d`
+CHART=$TMP/%s
+cp -r %s $CHART
+%s $CHART
+mv %s/%s-$_CHART_VERSION.tgz %s
+ls -la $CHART
+rm -r $TMP
+""" % (ctx.version_file.path, ctx.attr.version, ctx.attr.chartname, ctx.label.package, cmd, ctx.outputs.package.dirname, ctx.attr.chartname, ctx.outputs.package.path),
     )
 
 helm_package = rule(
@@ -34,7 +48,7 @@ helm_package = rule(
             cfg = "host",
         ),
     },
-    outputs = {"package": "%{chartname}-%{version}.tgz"},
+    outputs = {"package": "%{chartname}.tgz"},
     implementation = _helm_package_impl,
     executable = False,
 )

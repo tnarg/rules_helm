@@ -3,7 +3,7 @@ load("@com_github_tnarg_rules_helm//helm:charts.bzl", "helm_package", "helm_push
 helm_package(
     name = "chart",
     chartname = "helloworld",
-    version = "0.1.1-alpha+gitsha1",
+    version = "0.1.1-alpha+git${GIT_STATUS}",
     srcs = glob(["**/*"]),
 )
 
