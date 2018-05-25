@@ -1,0 +1,25 @@
+load("@com_tnarg_rules_helm//helm:charts.bzl", "helm_chart", "helm_s3_push")
+
+helm_chart(
+    name = "other",
+    version = "2.0.0-beta+git${GIT_STATUS}",
+    srcs = [
+        ".helmignore",
+        "Chart.yaml",
+        "templates/NOTES.txt",
+        "templates/_helpers.tpl",
+        "templates/deployment.yaml",
+        "templates/ingress.yaml",
+        "templates/service.yaml",
+        "values.yaml",
+    ],
+    deps = ["//examples/helloworld"],
+    repository = "s3://my-bucket/my-helm-charts/",
+)
+
+helm_s3_push(
+    name = "s3_push",
+    chart = ":chart",
+    aws_region = "us-east-1",
+)
+

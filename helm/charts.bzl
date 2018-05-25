@@ -1,9 +1,27 @@
+ChartInfo = provider(fields=["chartname", "version", "repository"])
 
-def _helm_package_impl(ctx):
-    #print(ctx.var)
-    #interpolated_version = ctx.attr.version.format(ctx.var)
-    #print(interpolated_version)
+def _helm_chart_impl(ctx):
+    # make the dependencies.yaml template
+    requirements  = "cat <<EOF\ndependencies:\n"
+    for dep in ctx.attr.deps:
+        requirements += "- name: \"%s\"\n" % (dep[ChartInfo].chartname,)
+        requirements += "  version: \"%s\"\n" % (dep[ChartInfo].version,)
+        requirements += "  repository: \"%s\"\n" % (dep[ChartInfo].repository,)
+    requirements += "EOF"
 
+    requirements_sh = ctx.actions.declare_file("requirements.sh")
+    ctx.file_action(output = requirements_sh, content = requirements)
+
+    # Copy dependencies into charts directory
+    cpdeps  = "# BEGIN cpdeps\n"
+    for dep in ctx.attr.deps:
+        cpdeps += "cp %s $CHART/charts/%s-%s.tgz\n" % (list(dep.files)[0].path, dep[ChartInfo].chartname, dep[ChartInfo].version)
+    cpdeps += "# END cpdeps\n"
+
+    cpdeps_sh = ctx.actions.declare_file("cpdeps.sh")
+    ctx.file_action(output = cpdeps_sh, content = cpdeps)
+
+    # package the chart
     cmd = " ".join([
         ctx.executable.helmbin.path,
         "package",
@@ -12,33 +30,46 @@ def _helm_package_impl(ctx):
         "--version=$_CHART_VERSION",
         "--destination=%s" % ctx.outputs.package.dirname,
     ])
+
+    depfiles = []
+    for dep in ctx.attr.deps:
+        for f in dep.files:
+            depfiles += [f]
+
     ctx.action(
-        inputs = ctx.files.srcs + ctx.files.helmbin + [ctx.version_file],
+        inputs = ctx.files.srcs + ctx.files.helmbin + [ctx.version_file, requirements_sh, cpdeps_sh] + depfiles,
         outputs = [ctx.outputs.package],
-        command = """
-set -e
-export _CHART_VERSION=$(env -i $(cat %s | awk '{printf "%%s=%%s ", $1, $2}') bash -c 'echo %s')
-TMP=`mktemp -d`
-CHART=$TMP/%s
-cp -r %s $CHART
-%s $CHART
-mv %s/%s-$_CHART_VERSION.tgz %s
-rm -r $TMP
-""" % (ctx.version_file.path, ctx.attr.version, ctx.attr.chartname, ctx.label.package, cmd, ctx.outputs.package.dirname, ctx.attr.chartname, ctx.outputs.package.path),
+        command = "\n".join([
+            "set -e",
+            "export _VARS=$(cat %s | awk '{printf \"%%s=%%s \", $1, $2}')" % (ctx.version_file.path,),
+            "export _CHART_VERSION=$(env -i $_VARS bash -c 'echo %s')" % (ctx.attr.version,),
+            "TMP=`mktemp -d`",
+            "CHART=$TMP/%s" % (ctx.attr.name,),
+            "cp -r %s $CHART" % (ctx.label.package,),
+            "mkdir $CHART/charts",
+            "env -i $_VARS bash %s > $CHART/requirements.yaml" % (requirements_sh.path,),
+            "env -i CHART=$CHART $_VARS bash %s" % (cpdeps_sh.path,),
+            "%s $CHART" % (cmd,),
+            "mv %s/%s-$_CHART_VERSION.tgz %s" % (ctx.outputs.package.dirname, ctx.attr.name, ctx.outputs.package.path),
+            "rm -r $TMP",
+        ])
     )
 
-helm_package = rule(
+    return [ChartInfo(chartname=ctx.attr.name, version=ctx.attr.version, repository=ctx.attr.repository)]
+
+helm_chart = rule(
     attrs = {
         "srcs": attr.label_list(
             mandatory = True,
             allow_files = True,
         ),
-        "chartname": attr.string(
-            mandatory = True,
-        ),
         "version": attr.string(
             mandatory = True,
         ),
+        "repository": attr.string(
+            mandatory = True,
+        ),
+        "deps": attr.label_list(providers = [ChartInfo]),
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
@@ -47,8 +78,10 @@ helm_package = rule(
             cfg = "host",
         ),
     },
-    outputs = {"package": "%{chartname}.tgz"},
-    implementation = _helm_package_impl,
+    outputs = {
+        "package": "%{name}.tgz",
+    },
+    implementation = _helm_chart_impl,
     executable = False,
 )
 
@@ -58,7 +91,7 @@ def _helm_s3_push_impl(ctx):
         output = ctx.outputs.push,
         substitutions = {
             "%{CHART}": ctx.file.chart.short_path,
-            "%{REPO}": ctx.attr.repo,
+            "%{REPO}": ctx.attr.chart[ChartInfo].repository,
             "%{AWS_REGION}": ctx.attr.aws_region,
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{HELMS3}": ctx.executable.helms3bin.short_path,
@@ -99,9 +132,7 @@ helm_s3_push = rule(
         "chart": attr.label(
             mandatory = True,
             single_file = True,
-        ),
-        "repo": attr.string(
-            mandatory = True,
+            providers = [ChartInfo],
         ),
         "aws_region": attr.string(
             mandatory = True,
@@ -118,7 +149,7 @@ def _helm_push_impl(ctx):
         output = ctx.outputs.push,
         substitutions = {
             "%{CHART}": ctx.file.chart.short_path,
-            "%{REPO}": ctx.attr.repo,
+            "%{REPO}": ctx.attr[ChartInfo].repository,
             "%{HELM_REPO_CONTEXT_PATH}": ctx.attr.contextpath,
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{HELMPUSH}": ctx.executable.helmpushbin.short_path,
@@ -159,9 +190,7 @@ helm_push = rule(
         "chart": attr.label(
             mandatory = True,
             single_file = True,
-        ),
-        "repo": attr.string(
-            mandatory = True,
+            providers = [ChartInfo],
         ),
         "contextpath": attr.string(
             mandatory = False,

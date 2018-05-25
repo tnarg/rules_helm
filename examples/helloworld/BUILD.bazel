@@ -1,24 +1,25 @@
-load("@com_github_tnarg_rules_helm//helm:charts.bzl", "helm_package", "helm_push", "helm_s3_push")
+load("@com_tnarg_rules_helm//helm:charts.bzl", "helm_chart", "helm_push")
 
-helm_package(
-    name = "chart",
-    chartname = "helloworld",
+helm_chart(
+    name = "helloworld",
     version = "0.1.1-alpha+git${GIT_STATUS}",
-    srcs = glob(["**/*"]),
+    srcs = [
+        ".helmignore",
+        "Chart.yaml",
+        "templates/NOTES.txt",
+        "templates/_helpers.tpl",
+        "templates/deployment.yaml",
+        "templates/ingress.yaml",
+        "templates/service.yaml",
+        "values.yaml",
+    ],
+    repository = "http://localhost:8080/foo/",
+    visibility = ["//visibility:public"],
 )
 
 # chartmuseum
 helm_push(
     name = "push",
     chart = ":chart",
-    repo = "http://localhost:8080/foo/",
     contextpath = "/foo/",
 )
-
-helm_s3_push(
-    name = "s3_push",
-    chart = ":chart",
-    repo = "s3://my-bucket/my-helm-charts/",
-    aws_region = "us-east-1",
-)
-
