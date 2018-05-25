@@ -1,3 +1,4 @@
 apiVersion: v1
 description: A Helm chart for Kubernetes
 name: helloworld
+icon: http://example.com/favicon.ico

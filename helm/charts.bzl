@@ -22,7 +22,13 @@ def _helm_chart_impl(ctx):
     ctx.file_action(output = cpdeps_sh, content = cpdeps)
 
     # package the chart
-    cmd = " ".join([
+    lint = " ".join([
+        ctx.executable.helmbin.path,
+        "lint",
+    ])
+
+    # package the chart
+    package = " ".join([
         ctx.executable.helmbin.path,
         "package",
         "--debug",
@@ -46,10 +52,12 @@ def _helm_chart_impl(ctx):
             "TMP=`mktemp -d`",
             "CHART=$TMP/%s" % (ctx.attr.name,),
             "cp -r %s $CHART" % (ctx.label.package,),
+            "echo \"version: $_CHART_VERSION\" >> $CHART/Chart.yaml",
             "mkdir $CHART/charts",
             "env -i $_VARS bash %s > $CHART/requirements.yaml" % (requirements_sh.path,),
             "env -i CHART=$CHART $_VARS bash %s" % (cpdeps_sh.path,),
-            "%s $CHART" % (cmd,),
+            "%s $CHART" % (lint,),
+            "%s $CHART" % (package,),
             "mv %s/%s-$_CHART_VERSION.tgz %s" % (ctx.outputs.package.dirname, ctx.attr.name, ctx.outputs.package.path),
             "rm -r $TMP",
         ])
