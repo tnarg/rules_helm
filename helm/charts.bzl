@@ -218,6 +218,7 @@ def _helm_lint_impl(ctx):
             "%{CHART_VERSION}": ctx.attr.chart[ChartInfo].version,
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{ARGS}": args,
+            "%{VERSION_FILE}": ctx.version_file.path,
         },
         executable = True,
     )
@@ -227,6 +228,7 @@ def _helm_lint_impl(ctx):
         runfiles = ctx.runfiles(files = [
             ctx.executable.helmbin,
             ctx.file.chart,
+            ctx.version_file,
         ]),
     )
 
