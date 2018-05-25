@@ -87,9 +87,10 @@ helm_chart = rule(
 )
 
 def _helm_s3_push_impl(ctx):
+    s3_push_sh = ctx.actions.declare_file("s3-push.sh")
     ctx.template_action(
         template = ctx.file._s3_push_tpl,
-        output = ctx.outputs.push,
+        output = s3_push_sh,
         substitutions = {
             "%{CHART}": ctx.file.chart.short_path,
             "%{REPO}": ctx.attr.chart[ChartInfo].repository,
@@ -101,7 +102,7 @@ def _helm_s3_push_impl(ctx):
     )
 
     return DefaultInfo(
-        executable = ctx.outputs.push,
+        executable = s3_push_sh,
         runfiles = ctx.runfiles(files = [
             ctx.executable.helmbin,
             ctx.executable.helms3bin,
@@ -139,15 +140,15 @@ helm_s3_push = rule(
             mandatory = True,
         ),
     },
-    outputs = {"push": "s3-push.sh"},
     implementation = _helm_s3_push_impl,
     executable = True,
 )
 
 def _helm_push_impl(ctx):
+    push_sh = ctx.actions.declare_file("push.sh")
     ctx.template_action(
         template = ctx.file._push_tpl,
-        output = ctx.outputs.push,
+        output = push_sh,
         substitutions = {
             "%{CHART}": ctx.file.chart.short_path,
             "%{REPO}": ctx.attr.chart[ChartInfo].repository,
@@ -159,7 +160,7 @@ def _helm_push_impl(ctx):
     )
 
     return DefaultInfo(
-        executable = ctx.outputs.push,
+        executable = push_sh,
         runfiles = ctx.runfiles(files = [
             ctx.executable.helmbin,
             ctx.executable.helmpushbin,
@@ -197,7 +198,6 @@ helm_push = rule(
             mandatory = False,
         ),
     },
-    outputs = {"push": "push.sh"},
     implementation = _helm_push_impl,
     executable = True,
 )
