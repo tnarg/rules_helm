@@ -20,6 +20,6 @@ helm_chart(
 # chartmuseum
 helm_push(
     name = "push",
-    chart = ":chart",
+    chart = ":helloworld",
     contextpath = "/foo/",
 )

@@ -19,7 +19,7 @@ helm_chart(
 
 helm_s3_push(
     name = "s3_push",
-    chart = ":chart",
+    chart = ":other",
     aws_region = "us-east-1",
 )
 

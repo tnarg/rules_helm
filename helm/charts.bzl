@@ -149,7 +149,7 @@ def _helm_push_impl(ctx):
         output = ctx.outputs.push,
         substitutions = {
             "%{CHART}": ctx.file.chart.short_path,
-            "%{REPO}": ctx.attr[ChartInfo].repository,
+            "%{REPO}": ctx.attr.chart[ChartInfo].repository,
             "%{HELM_REPO_CONTEXT_PATH}": ctx.attr.contextpath,
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{HELMPUSH}": ctx.executable.helmpushbin.short_path,
