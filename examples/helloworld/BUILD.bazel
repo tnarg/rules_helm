@@ -1,4 +1,4 @@
-load("@com_tnarg_rules_helm//helm:charts.bzl", "helm_chart", "helm_push")
+load("@com_tnarg_rules_helm//helm:charts.bzl", "helm_chart", "helm_push", "helm_lint")
 
 helm_chart(
     name = "helloworld",
@@ -22,4 +22,9 @@ helm_push(
     name = "push",
     chart = ":helloworld",
     contextpath = "/foo/",
+)
+
+helm_lint(
+    name = "lint",
+    chart = ":helloworld",
 )

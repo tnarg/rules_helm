@@ -22,12 +22,6 @@ def _helm_chart_impl(ctx):
     ctx.file_action(output = cpdeps_sh, content = cpdeps)
 
     # package the chart
-    lint = " ".join([
-        ctx.executable.helmbin.path,
-        "lint",
-    ])
-
-    # package the chart
     package = " ".join([
         ctx.executable.helmbin.path,
         "package",
@@ -56,7 +50,6 @@ def _helm_chart_impl(ctx):
             "mkdir $CHART/charts",
             "env -i $_VARS bash %s > $CHART/requirements.yaml" % (requirements_sh.path,),
             "env -i CHART=$CHART $_VARS bash %s" % (cpdeps_sh.path,),
-            "%s $CHART" % (lint,),
             "%s $CHART" % (package,),
             "mv %s/%s-$_CHART_VERSION.tgz %s" % (ctx.outputs.package.dirname, ctx.attr.name, ctx.outputs.package.path),
             "rm -r $TMP",
@@ -206,5 +199,52 @@ helm_push = rule(
     },
     outputs = {"push": "push.sh"},
     implementation = _helm_push_impl,
+    executable = True,
+)
+
+
+def _helm_lint_impl(ctx):
+    lint_sh = ctx.actions.declare_file("lint.sh")
+    ctx.template_action(
+        template = ctx.file._lint_tpl,
+        output = lint_sh,
+        substitutions = {
+            "%{CHART}": ctx.file.chart.short_path,
+            "%{CHART_NAME}": ctx.attr.chart[ChartInfo].chartname,
+            "%{CHART_VERSION}": ctx.attr.chart[ChartInfo].version,
+            "%{HELM}": ctx.executable.helmbin.short_path,
+        },
+        executable = True,
+    )
+
+    return DefaultInfo(
+        executable = lint_sh,
+        runfiles = ctx.runfiles(files = [
+            ctx.executable.helmbin,
+            ctx.file.chart,
+        ]),
+    )
+
+helm_lint = rule(
+    attrs = {
+        "_lint_tpl": attr.label(
+            default = Label("//helm:lint.sh.tpl"),
+            single_file = True,
+            allow_files = True,
+        ),
+        "helmbin": attr.label(
+            default = Label("//helm:helm_runtime"),
+            executable = True,
+            single_file = True,
+            allow_files = True,
+            cfg = "host",
+        ),
+        "chart": attr.label(
+            mandatory = True,
+            single_file = True,
+            providers = [ChartInfo],
+        ),
+    },
+    implementation = _helm_lint_impl,
     executable = True,
 )
