@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 export TMPDIR=`mktemp -d`
 export ARCHIVE="$TMPDIR/%{CHART_NAME}-%{CHART_VERSION}.tgz"
 cp %{CHART} ${ARCHIVE}
