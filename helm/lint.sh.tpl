@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -e
+set -ex
 export TMPDIR=`mktemp -d`
 export ARCHIVE="$TMPDIR/%{CHART_NAME}-%{CHART_VERSION}.tgz"
 cp %{CHART} ${ARCHIVE}
-%{HELM} lint ${ARCHIVE} $@
+%{HELM} lint %{ARGS} ${ARCHIVE} $@
 rm -r ${TMPDIR}

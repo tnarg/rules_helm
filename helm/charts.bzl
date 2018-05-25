@@ -204,6 +204,10 @@ helm_push = rule(
 
 
 def _helm_lint_impl(ctx):
+    args = ""
+    if ctx.attr.strict:
+        args = "--strict"
+
     lint_sh = ctx.actions.declare_file("lint.sh")
     ctx.template_action(
         template = ctx.file._lint_tpl,
@@ -213,6 +217,7 @@ def _helm_lint_impl(ctx):
             "%{CHART_NAME}": ctx.attr.chart[ChartInfo].chartname,
             "%{CHART_VERSION}": ctx.attr.chart[ChartInfo].version,
             "%{HELM}": ctx.executable.helmbin.short_path,
+            "%{ARGS}": args,
         },
         executable = True,
     )
@@ -243,6 +248,9 @@ helm_lint = rule(
             mandatory = True,
             single_file = True,
             providers = [ChartInfo],
+        ),
+        "strict": attr.bool(
+            default = False,
         ),
     },
     implementation = _helm_lint_impl,
