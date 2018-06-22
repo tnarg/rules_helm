@@ -45,7 +45,7 @@ def _helm_chart_impl(ctx):
             "export _CHART_VERSION=$(env -i $_VARS bash -c 'echo %s')" % (ctx.attr.version,),
             "TMP=`mktemp -d`",
             "CHART=$TMP/%s" % (ctx.attr.name,),
-            "cp -r %s $CHART" % (ctx.label.package,),
+            "cp -Lr %s $CHART" % (ctx.label.package,),
             "echo \"version: $_CHART_VERSION\" >> $CHART/Chart.yaml",
             "mkdir $CHART/charts",
             "env -i $_VARS bash %s > $CHART/requirements.yaml" % (requirements_sh.path,),
