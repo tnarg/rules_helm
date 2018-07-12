@@ -36,6 +36,11 @@ def _helm_chart_impl(ctx):
         for f in dep.files:
             depfiles += [f]
 
+    cp_cmds = []
+    for f in ctx.files.srcs:
+        suffix = f.path[len(ctx.label.package) + 1:]
+        cp_cmds.append("mkdir -p $(dirname $CHART/%s) && cp %s $CHART/%s" % (suffix, f.path, suffix))
+
     ctx.action(
         inputs = ctx.files.srcs + ctx.files.helmbin + [ctx.version_file, requirements_sh, cpdeps_sh] + depfiles,
         outputs = [ctx.outputs.package],
@@ -45,7 +50,7 @@ def _helm_chart_impl(ctx):
             "export _CHART_VERSION=$(env -i $_VARS bash -c 'echo %s')" % (ctx.attr.version,),
             "TMP=`mktemp -d`",
             "CHART=$TMP/%s" % (ctx.attr.name,),
-            "cp -Lr %s $CHART" % (ctx.label.package,),
+            "\n".join(cp_cmds),
             "echo \"version: $_CHART_VERSION\" >> $CHART/Chart.yaml",
             "mkdir $CHART/charts",
             "env -i $_VARS bash %s > $CHART/requirements.yaml" % (requirements_sh.path,),
