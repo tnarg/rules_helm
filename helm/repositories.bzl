@@ -1,3 +1,4 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _helm_runtimes = {
     "2.8.2": [
@@ -52,7 +53,7 @@ _helm_push_runtimes = {
 def helm_tools():
     for helm_version in _helm_runtimes:
         for platform in _helm_runtimes[helm_version]:
-            native.new_http_archive(
+            http_archive(
                 name = "helm_runtime_%s_%s" % (platform["os"], platform["arch"]),
                 build_file_content = """exports_files(["%s-%s/helm"], visibility = ["//visibility:public"])""" % (platform["os"], platform["arch"]),
                 url = "https://storage.googleapis.com/kubernetes-helm/helm-v%s-%s-%s.tar.gz" % (helm_version, platform["os"], platform["arch"]),
@@ -60,7 +61,7 @@ def helm_tools():
 
     for helm_s3_version in _helm_s3_runtimes:
         for platform in _helm_s3_runtimes[helm_s3_version]:
-            native.new_http_archive(
+            http_archive(
                 name = "helm_s3_runtime_%s_%s" % (platform["os"], platform["arch"]),
                 build_file_content = """exports_files(["bin/helms3"], visibility = ["//visibility:public"])""",
                 url = "https://github.com/hypnoglow/helm-s3/releases/download/v%s/helm-s3_%s_%s_%s.tar.gz" % (helm_s3_version, helm_s3_version, platform["os"], platform["arch"]),
@@ -68,7 +69,7 @@ def helm_tools():
 
     for helm_push_version in _helm_push_runtimes:
         for platform in _helm_push_runtimes[helm_push_version]:
-            native.new_http_archive(
+            http_archive(
                 name = "helm_push_runtime_%s_%s" % (platform["os"], platform["arch"]),
                 build_file_content = """exports_files(["bin/helmpush"], visibility = ["//visibility:public"])""",
                 url = "https://github.com/chartmuseum/helm-push/releases/download/v%s/helm-push_%s_%s_%s.tar.gz" % (helm_push_version, helm_push_version, platform["os"], platform["arch"]),
