@@ -1,51 +1,51 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _helm_runtimes = {
-    "2.8.2": [
+    "2.12.0": [
         {
             "os": "linux",
             "arch": "amd64",
-            "sha256": "614b5ac79de4336b37c9b26d528c6f2b94ee6ccacb94b0f4b8d9583a8dd122d3",
+            "sha256": "9f96a6e4fc52b5df906da381532cc2eb2f3f57cc203ccaec2b11cf5dc26a7dfc",
         },
         {
             "os": "darwin",
             "arch": "amd64",
-            "sha256": "a0a8cf462080b2bc391f38b7cf617618b189cdef9f071c06fa0068c2418cc413",
+            "sha256": "2b7e4fb460d7c641be1b90aad38a882462f88fd47975cc91aa17600ab5152590",
         },
     ]
 }
 
 _helm_s3_runtimes = {
-    "0.6.0": [
+    "0.8.0": [
         {
             "os": "linux",
             "arch": "amd64",
-            "sha256": "9bc83ca57a5e06a6ec92015504aff3b8a394f8642d2ca0433cdb886de1ecdb4e",
+            "sha256": "100e702ac23b24bf906ed5568d277f1b3e66be734cd4184ef0970bf8fa02fe18",
         },
         {
             "os": "darwin",
             "arch": "amd64",
-            "sha256": "0357d07a6ae27bbe3fbc934e167dc8e5f76bae83a6982277122797f4eca43b72",
+            "sha256": "cc3b91564e739caa40843ffbb0eaf672d1fb1a01a376371cea1bb19dc70beb89",
         },
     ]
 }
 
 _helm_push_runtimes = {
-    "0.4.0": [
+    "0.7.1": [
         {
             "os": "linux",
             "arch": "amd64",
-            "sha256": "e0102fc8411c00b9008457a75cd4830f2e23a0415c6fa29b78b6c551d4febc07",
+            "sha256": "dd9b5167a44cd37b722e61e854380fd6a8bd0cd0724e022a274c120cf7097f0e",
         },
         {
             "os": "darwin",
             "arch": "amd64",
-            "sha256": "bc581049e27b5aca6929109b0404f5e793274cfae0573d0f3531d0ffbd717f6e",
+            "sha256": "f410c87720bdb7033aaad4ea6262ff25dde8acd755b22567117a03668ed9557b",
         },
         {
             "os": "windows",
             "arch": "amd64",
-            "sha256": "0aa1e7ae2aca375cbd13d44c01c899408d557345d814ac876a4065a3d0a5b9ff",
+            "sha256": "a8dc9b7e5f4feb361b62dae727840378dcec7398748fb75614521642221b19de",
         }
     ]
 }
