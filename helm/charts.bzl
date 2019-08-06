@@ -41,7 +41,7 @@ def _helm_chart_impl(ctx):
         suffix = f.path[len(ctx.label.package) + 1:]
         cp_cmds.append("mkdir -p $(dirname $CHART/%s) && cp %s $CHART/%s" % (suffix, f.path, suffix))
 
-    ctx.action(
+    ctx.action.run_shell(
         inputs = ctx.files.srcs + ctx.files.helmbin + [ctx.info_file, ctx.version_file, requirements_sh, cpdeps_sh] + depfiles,
         outputs = [ctx.outputs.package],
         command = "\n".join([
