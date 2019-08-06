@@ -103,7 +103,6 @@ def _helm_s3_push_impl(ctx):
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{HELMS3}": ctx.executable.helms3bin.short_path,
         },
-        executable = True,
     )
 
     return DefaultInfo(
