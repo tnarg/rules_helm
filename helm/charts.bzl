@@ -3,7 +3,7 @@ ChartInfo = provider(fields=["chartname", "version", "repository"])
 def _helm_chart_impl(ctx):
     # make the dependencies.yaml template
     requirements  = "cat <<EOF\ndependencies:\n"
-    for dep in ctx.attr.deps:
+    for dep in ctx.attr.deps.to_list():
         requirements += "- name: \"%s\"\n" % (dep[ChartInfo].chartname,)
         requirements += "  version: \"%s\"\n" % (dep[ChartInfo].version,)
         requirements += "  repository: \"%s\"\n" % (dep[ChartInfo].repository,)
@@ -14,7 +14,7 @@ def _helm_chart_impl(ctx):
 
     # Copy dependencies into charts directory
     cpdeps  = "# BEGIN cpdeps\n"
-    for dep in ctx.attr.deps:
+    for dep in ctx.attr.deps.to_list():
         cpdeps += "cp %s $CHART/charts/%s-%s.tgz\n" % (list(dep.files)[0].path, dep[ChartInfo].chartname, dep[ChartInfo].version)
     cpdeps += "# END cpdeps\n"
 
@@ -32,7 +32,7 @@ def _helm_chart_impl(ctx):
     ])
 
     depfiles = []
-    for dep in ctx.attr.deps:
+    for dep in ctx.attr.deps.to_list():
         for f in dep.files:
             depfiles += [f]
 
