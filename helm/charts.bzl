@@ -93,7 +93,7 @@ helm_chart = rule(
 
 def _helm_s3_push_impl(ctx):
     s3_push_sh = ctx.actions.declare_file("s3-push.sh")
-    ctx.template_action(
+    ctx.actions.expand_template(
         template = ctx.file._s3_push_tpl,
         output = s3_push_sh,
         substitutions = {
@@ -148,7 +148,7 @@ helm_s3_push = rule(
 
 def _helm_push_impl(ctx):
     push_sh = ctx.actions.declare_file("push.sh")
-    ctx.template_action(
+    ctx.actions.expand_template(
         template = ctx.file._push_tpl,
         output = push_sh,
         substitutions = {
@@ -208,7 +208,7 @@ def _helm_lint_impl(ctx):
         args = "--strict"
 
     lint_sh = ctx.actions.declare_file("lint.sh")
-    ctx.template_action(
+    ctx.actions.expand_template(
         template = ctx.file._lint_tpl,
         output = lint_sh,
         substitutions = {
