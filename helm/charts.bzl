@@ -10,7 +10,7 @@ def _helm_chart_impl(ctx):
     requirements += "EOF"
 
     requirements_sh = ctx.actions.declare_file("requirements.sh")
-    ctx.file_action(output = requirements_sh, content = requirements)
+    ctx.actions.write(output = requirements_sh, content = requirements)
 
     # Copy dependencies into charts directory
     cpdeps  = "# BEGIN cpdeps\n"
@@ -19,7 +19,7 @@ def _helm_chart_impl(ctx):
     cpdeps += "# END cpdeps\n"
 
     cpdeps_sh = ctx.actions.declare_file("cpdeps.sh")
-    ctx.file_action(output = cpdeps_sh, content = cpdeps)
+    ctx.actions.write(output = cpdeps_sh, content = cpdeps)
 
     # package the chart
     package = " ".join([
