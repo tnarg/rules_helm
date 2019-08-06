@@ -157,7 +157,6 @@ def _helm_push_impl(ctx):
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{HELMPUSH}": ctx.executable.helmpushbin.short_path,
         },
-        executable = True,
     )
 
     return DefaultInfo(
@@ -215,7 +214,6 @@ def _helm_lint_impl(ctx):
             "%{CHARTNAME}": ctx.attr.chart[ChartInfo].chartname,
             "%{HELM}": ctx.executable.helmbin.short_path,
         },
-        executable = True,
     )
 
     return DefaultInfo(
