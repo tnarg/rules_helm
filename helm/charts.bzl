@@ -42,7 +42,8 @@ def _helm_chart_impl(ctx):
         cp_cmds.append("mkdir -p $(dirname $CHART/%s) && cp %s $CHART/%s" % (suffix, f.path, suffix))
 
     ctx.actions.run_shell(
-        inputs = ctx.files.srcs + ctx.files.helmbin + [ctx.info_file, ctx.version_file, requirements_sh, cpdeps_sh] + depfiles,
+        inputs = ctx.files.srcs + [ctx.info_file, ctx.version_file, requirements_sh, cpdeps_sh] + depfiles,
+        tools = ctx.files.helmbin,
         outputs = [ctx.outputs.package],
         command = "\n".join([
             "set -e",
