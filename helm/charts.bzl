@@ -79,8 +79,7 @@ helm_chart = rule(
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
     },
@@ -119,26 +118,23 @@ helm_s3_push = rule(
     attrs = {
         "_s3_push_tpl": attr.label(
             default = Label("//helm:s3-push.sh.tpl"),
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
         ),
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "helms3bin": attr.label(
             default = Label("//helm:helm_s3_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "chart": attr.label(
             mandatory = True,
-            single_file = True,
+            allow_single_file = True,
             providers = [ChartInfo],
         ),
         "aws_region": attr.string(
@@ -177,26 +173,23 @@ helm_push = rule(
     attrs = {
         "_push_tpl": attr.label(
             default = Label("//helm:push.sh.tpl"),
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
         ),
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "helmpushbin": attr.label(
             default = Label("//helm:helm_push_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "chart": attr.label(
             mandatory = True,
-            single_file = True,
+            allow_single_file = True,
             providers = [ChartInfo],
         ),
         "contextpath": attr.string(
@@ -237,19 +230,17 @@ helm_lint = rule(
     attrs = {
         "_lint_tpl": attr.label(
             default = Label("//helm:lint.sh.tpl"),
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
         ),
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "chart": attr.label(
             mandatory = True,
-            single_file = True,
+            allow_single_file = True,
             providers = [ChartInfo],
         ),
         "strict": attr.bool(
