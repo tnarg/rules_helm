@@ -10,16 +10,16 @@ def _helm_chart_impl(ctx):
     requirements += "EOF"
 
     requirements_sh = ctx.actions.declare_file("requirements.sh")
-    ctx.file_action(output = requirements_sh, content = requirements)
+    ctx.actions.write(output = requirements_sh, content = requirements)
 
     # Copy dependencies into charts directory
     cpdeps  = "# BEGIN cpdeps\n"
     for dep in ctx.attr.deps:
-        cpdeps += "cp %s $CHART/charts/%s-%s.tgz\n" % (list(dep.files)[0].path, dep[ChartInfo].chartname, dep[ChartInfo].version)
+        cpdeps += "cp %s $CHART/charts/%s-%s.tgz\n" % (list(dep.files.to_list())[0].path, dep[ChartInfo].chartname, dep[ChartInfo].version)
     cpdeps += "# END cpdeps\n"
 
     cpdeps_sh = ctx.actions.declare_file("cpdeps.sh")
-    ctx.file_action(output = cpdeps_sh, content = cpdeps)
+    ctx.actions.write(output = cpdeps_sh, content = cpdeps)
 
     # package the chart
     package = " ".join([
@@ -33,7 +33,7 @@ def _helm_chart_impl(ctx):
 
     depfiles = []
     for dep in ctx.attr.deps:
-        for f in dep.files:
+        for f in dep.files.to_list():
             depfiles += [f]
 
     cp_cmds = []
@@ -41,8 +41,9 @@ def _helm_chart_impl(ctx):
         suffix = f.path[len(ctx.label.package) + 1:]
         cp_cmds.append("mkdir -p $(dirname $CHART/%s) && cp %s $CHART/%s" % (suffix, f.path, suffix))
 
-    ctx.action(
-        inputs = ctx.files.srcs + ctx.files.helmbin + [ctx.info_file, ctx.version_file, requirements_sh, cpdeps_sh] + depfiles,
+    ctx.actions.run_shell(
+        inputs = ctx.files.srcs + [ctx.info_file, ctx.version_file, requirements_sh, cpdeps_sh] + depfiles,
+        tools = ctx.files.helmbin,
         outputs = [ctx.outputs.package],
         command = "\n".join([
             "set -e",
@@ -79,8 +80,7 @@ helm_chart = rule(
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
     },
@@ -93,7 +93,7 @@ helm_chart = rule(
 
 def _helm_s3_push_impl(ctx):
     s3_push_sh = ctx.actions.declare_file("s3-push.sh")
-    ctx.template_action(
+    ctx.actions.expand_template(
         template = ctx.file._s3_push_tpl,
         output = s3_push_sh,
         substitutions = {
@@ -103,7 +103,6 @@ def _helm_s3_push_impl(ctx):
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{HELMS3}": ctx.executable.helms3bin.short_path,
         },
-        executable = True,
     )
 
     return DefaultInfo(
@@ -119,26 +118,23 @@ helm_s3_push = rule(
     attrs = {
         "_s3_push_tpl": attr.label(
             default = Label("//helm:s3-push.sh.tpl"),
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
         ),
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "helms3bin": attr.label(
             default = Label("//helm:helm_s3_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "chart": attr.label(
             mandatory = True,
-            single_file = True,
+            allow_single_file = True,
             providers = [ChartInfo],
         ),
         "aws_region": attr.string(
@@ -151,7 +147,7 @@ helm_s3_push = rule(
 
 def _helm_push_impl(ctx):
     push_sh = ctx.actions.declare_file("push.sh")
-    ctx.template_action(
+    ctx.actions.expand_template(
         template = ctx.file._push_tpl,
         output = push_sh,
         substitutions = {
@@ -161,7 +157,6 @@ def _helm_push_impl(ctx):
             "%{HELM}": ctx.executable.helmbin.short_path,
             "%{HELMPUSH}": ctx.executable.helmpushbin.short_path,
         },
-        executable = True,
     )
 
     return DefaultInfo(
@@ -177,26 +172,23 @@ helm_push = rule(
     attrs = {
         "_push_tpl": attr.label(
             default = Label("//helm:push.sh.tpl"),
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
         ),
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "helmpushbin": attr.label(
             default = Label("//helm:helm_push_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "chart": attr.label(
             mandatory = True,
-            single_file = True,
+            allow_single_file = True,
             providers = [ChartInfo],
         ),
         "contextpath": attr.string(
@@ -214,7 +206,7 @@ def _helm_lint_impl(ctx):
         args = "--strict"
 
     lint_sh = ctx.actions.declare_file("lint.sh")
-    ctx.template_action(
+    ctx.actions.expand_template(
         template = ctx.file._lint_tpl,
         output = lint_sh,
         substitutions = {
@@ -222,7 +214,6 @@ def _helm_lint_impl(ctx):
             "%{CHARTNAME}": ctx.attr.chart[ChartInfo].chartname,
             "%{HELM}": ctx.executable.helmbin.short_path,
         },
-        executable = True,
     )
 
     return DefaultInfo(
@@ -237,19 +228,17 @@ helm_lint = rule(
     attrs = {
         "_lint_tpl": attr.label(
             default = Label("//helm:lint.sh.tpl"),
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
         ),
         "helmbin": attr.label(
             default = Label("//helm:helm_runtime"),
             executable = True,
-            single_file = True,
-            allow_files = True,
+            allow_single_file = True,
             cfg = "host",
         ),
         "chart": attr.label(
             mandatory = True,
-            single_file = True,
+            allow_single_file = True,
             providers = [ChartInfo],
         ),
         "strict": attr.bool(
