@@ -1,51 +1,66 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _helm_runtimes = {
-    "2.8.2": [
+    "3.9.0": [
         {
             "os": "linux",
             "arch": "amd64",
-            "sha256": "614b5ac79de4336b37c9b26d528c6f2b94ee6ccacb94b0f4b8d9583a8dd122d3",
+            "sha256": "1484ffb0c7a608d8069470f48b88d729e88c41a1b6602f145231e8ea7b43b50a",
         },
         {
             "os": "darwin",
             "arch": "amd64",
-            "sha256": "a0a8cf462080b2bc391f38b7cf617618b189cdef9f071c06fa0068c2418cc413",
+            "sha256": "7e5a2f2a6696acf278ea17401ade5c35430e2caa57f67d4aa99c607edcc08f5e",
+        },
+        {
+            "os": "darwin",
+            "arch": "arm64",
+            "sha256": "22cf080ded5dd71ec15d33c13586ace9b6002e97518a76df628e67ecedd5aa70",
         },
     ]
 }
 
 _helm_s3_runtimes = {
-    "0.6.0": [
+    "0.12.0": [
         {
             "os": "linux",
             "arch": "amd64",
-            "sha256": "9bc83ca57a5e06a6ec92015504aff3b8a394f8642d2ca0433cdb886de1ecdb4e",
+            "sha256": "701318680e90510e9ec321447bb805fc181733ceab2fb35b5291bc33cec3b2bc",
         },
         {
             "os": "darwin",
             "arch": "amd64",
-            "sha256": "0357d07a6ae27bbe3fbc934e167dc8e5f76bae83a6982277122797f4eca43b72",
+            "sha256": "ee61357f3c76e46c152aee399616aba22d04319424264869f7183ae264ff847b",
+        },
+        {
+            "os": "darwin",
+            "arch": "arm64",
+            "sha256": "eab922353ac2f813c47e3b011aa3c22242748e3805f48e747dfbd3e20d8abf7c",
         },
     ]
 }
 
 _helm_push_runtimes = {
-    "0.4.0": [
+    "0.10.2": [
         {
             "os": "linux",
             "arch": "amd64",
-            "sha256": "e0102fc8411c00b9008457a75cd4830f2e23a0415c6fa29b78b6c551d4febc07",
+            "sha256": "0f661c9e2ad1701c40812c398576cc55ff5a4c89c681eb98b496ab6a61c5cbf0",
         },
         {
             "os": "darwin",
             "arch": "amd64",
-            "sha256": "bc581049e27b5aca6929109b0404f5e793274cfae0573d0f3531d0ffbd717f6e",
+            "sha256": "59d96d2ade0187fe726cb35e9e33ef422006ac62b14186fe6f19783d3abca91d",
+        },
+        {
+            "os": "darwin",
+            "arch": "arm64",
+            "sha256": "03e861fb52eee613232b98af790c08002b6a5791d3be247fe1b5f56be2a887f9",
         },
         {
             "os": "windows",
             "arch": "amd64",
-            "sha256": "0aa1e7ae2aca375cbd13d44c01c899408d557345d814ac876a4065a3d0a5b9ff",
+            "sha256": "25a089f98fb0d8a94f5a9d1805a3f86487ac14a3d26dd027f126e8f67b23545f",
         }
     ]
 }
