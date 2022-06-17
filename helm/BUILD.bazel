@@ -54,11 +54,11 @@ genrule(
     name = "helm_push_runtime",
     output_to_bindir = 1,
     srcs = select({
-        "//helm:linux_amd64": ["@helm_push_runtime_linux_amd64//:bin/helmpush"],
-        "//helm:darwin_amd64": ["@helm_push_runtime_darwin_amd64//:bin/helmpush"],
-        "//helm:darwin_arm64": ["@helm_push_runtime_darwin_arm64//:bin/helmpush"],
+        "//helm:linux_amd64": ["@helm_push_runtime_linux_amd64//:bin/helm-cm-push"],
+        "//helm:darwin_amd64": ["@helm_push_runtime_darwin_amd64//:bin/helm-cm-push"],
+        "//helm:darwin_arm64": ["@helm_push_runtime_darwin_arm64//:bin/helm-cm-push"],
     }),
-    outs = ["bin/helmpush"],
+    outs = ["bin/helm-cm-push"],
     cmd = "cp $(<) $(@)",
     executable = True,
 )

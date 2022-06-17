@@ -86,6 +86,6 @@ def helm_tools():
         for platform in _helm_push_runtimes[helm_push_version]:
             http_archive(
                 name = "helm_push_runtime_%s_%s" % (platform["os"], platform["arch"]),
-                build_file_content = """exports_files(["bin/helmpush"], visibility = ["//visibility:public"])""",
+                build_file_content = """exports_files(["bin/helm-cm-push"], visibility = ["//visibility:public"])""",
                 url = "https://github.com/chartmuseum/helm-push/releases/download/v%s/helm-push_%s_%s_%s.tar.gz" % (helm_push_version, helm_push_version, platform["os"], platform["arch"]),
             )
