@@ -26,7 +26,6 @@ def _helm_chart_impl(ctx):
         ctx.executable.helmbin.path,
         "package",
         "--debug",
-        "--save=false",
         "--version=$_CHART_VERSION",
         "--destination=%s" % ctx.outputs.package.dirname,
     ])

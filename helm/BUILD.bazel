@@ -16,13 +16,22 @@ config_setting(
     }
 )
 
+config_setting(
+    name = "darwin_arm64",
+    values = {
+        "cpu": "darwin_arm64",
+    }
+)
+
+
 genrule(
     name = "helm_runtime",
     output_to_bindir = 1,
     srcs = select({
         "//helm:linux_amd64": ["@helm_runtime_linux_amd64//:linux-amd64/helm"],
         "//helm:darwin_amd64": ["@helm_runtime_darwin_amd64//:darwin-amd64/helm"],
-    }),
+        "//helm:darwin_arm64": ["@helm_runtime_darwin_arm64//:darwin-arm64/helm"],
+        }),
     outs = ["bin/helm"],
     cmd = "cp $(<) $(@)",
     executable = True,
@@ -34,6 +43,7 @@ genrule(
     srcs = select({
         "//helm:linux_amd64": ["@helm_s3_runtime_linux_amd64//:bin/helms3"],
         "//helm:darwin_amd64": ["@helm_s3_runtime_darwin_amd64//:bin/helms3"],
+        "//helm:darwin_arm64": ["@helm_s3_runtime_darwin_arm64//:bin/helms3"],
     }),
     outs = ["bin/helms3"],
     cmd = "cp $(<) $(@)",
@@ -46,6 +56,7 @@ genrule(
     srcs = select({
         "//helm:linux_amd64": ["@helm_push_runtime_linux_amd64//:bin/helmpush"],
         "//helm:darwin_amd64": ["@helm_push_runtime_darwin_amd64//:bin/helmpush"],
+        "//helm:darwin_arm64": ["@helm_push_runtime_darwin_arm64//:bin/helmpush"],
     }),
     outs = ["bin/helmpush"],
     cmd = "cp $(<) $(@)",
